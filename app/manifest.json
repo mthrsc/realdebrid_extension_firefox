@@ -1,0 +1,19 @@
+{
+    "manifest_version": 2,
+    "name": "real-debrid-ext",
+    "version": "1.0",
+
+    "description": "Offers in browser control of real-debrid.",
+
+    "icons": {
+        "48": "icon/icon.png"
+    },
+
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["app.js"]
+        }
+    ]
+}
+  
