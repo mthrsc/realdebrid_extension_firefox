@@ -17,7 +17,7 @@
             "48": "icons/icon48.png",
             "128": "icons/icon128.png"
         },
-        "default_popup": "popup/html/login_details.html",
+        "default_popup": "popup/html/popup.html",
         "default_title": "RDE"
     },
 
