@@ -13,20 +13,17 @@
 
     "browser_action": {
         "default_icon": {
-            "16": "icons/icon16.png",
-            "48": "icons/icon48.png",
-            "128": "icons/icon128.png"
+            "16": "icons/iconsBW/icon16.png",
+            "48": "icons/iconsBW/icon48.png",
+            "128": "icons/iconsBW/icon128.png"
         },
         "default_popup": "popup/html/popup.html",
         "default_title": "RDE"
     },
-
-    "content_scripts": [
-        {
-            "matches": ["<all_urls>"],
-            "js": ["app.js"]
-        }
-    ],
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
 
     "permissions": [
         "storage"

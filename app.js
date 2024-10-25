@@ -1,4 +1,3 @@
-console.log("Extension starting")
 
 // credsLoaded = false
 
