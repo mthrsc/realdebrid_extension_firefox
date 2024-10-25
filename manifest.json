@@ -6,7 +6,19 @@
     "description": "Offers in browser control of real-debrid.",
 
     "icons": {
-        "48": "icon/icon.png"
+        "16": "icons/icon16.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
+      },
+
+    "browser_action": {
+        "default_icon": {
+            "16": "icons/icon16.png",
+            "48": "icons/icon48.png",
+            "128": "icons/icon128.png"
+        },
+        "default_popup": "popup/html/login_details.html",
+        "default_title": "RDE"
     },
 
     "content_scripts": [
@@ -15,7 +27,7 @@
             "js": ["app.js"]
         }
     ],
-    
+
     "permissions": [
         "storage"
     ]
