@@ -1,48 +1,59 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const loginButton = document.getElementById("loginButton");
-    loginButton.addEventListener("click", handleLogin);
-});
+let validKey = false
+let apiKey = ""
+let urlLogin = "https://api.real-debrid.com/rest/1.0/user"
 
+function setValue(name, value) {
+    return browser.storage.local.set({ [name]: value });
+}
 
-
-function handleLogin() {
-    // Get values from the input fields
-    const apiKey = document.getElementById("apikey").value;
-
-    // Perform any desired action with the input values
-    console.log("API Key:", apiKey);
-    const url = 'https://api.real-debrid.com/rest/1.0/user';
-
-    // Bearer token
-    fetch(url, {
-        method: 'GET',
-        mode: 'cors', 
-        headers: {
-            'Authorization': `Bearer ${apiKey}`, 
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => {
-        // Check if the response is ok (status code in the range 200-299)
-        if (!response.ok) {
-            throw new Error('Network response was not ok ' + response.statusText);
-        }
-        return response.json(); // Parse the JSON from the response
-    })
-    .then(data => {
-        console.log(data); // Handle the data from the response
-        // format data
-
-        // store apikey
-        storeapiKey(apiKey)
-    })
-    .catch(error => {
-        console.error('There was a problem with the fetch operation:', error);
+function getValue(name) {
+    console.log("[name]: " + [name])
+    return browser.storage.local.get(name).then((result) => {
+        ret =  result[name] !== undefined ? result[name] : "";
+        console.log("ret: " + ret)
+        return ret
+    }).catch((error) => {
+        console.error("Error retrieving value for", name, ":", error);
+        return ""; // Return an empty string in case of error
     });
-
-    // Add additional logic here, like validation or storing credentials
 }
 
-function storeapiKey(apiKey){
-    browser.storage.local.set({"apiKey": apiKey})
+
+function updatePopupWithLatestTorrent(apiKey){
+
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    
+    validKey = getValue("validKey")
+    apiKey = getValue("apiKey")
+
+    console.log("validKey: " + validKey)
+    console.log("apiKey: " + apiKey)
+
+    if(validKey){
+        console.log("validKey is true")
+        
+        //Implement and call updatePopupWithLatestTorrent()
+
+
+
+        // browser.storage.local.get("apiKey").then((result) => {
+        //     apiKey = result.apiKey
+        //     document.getElementById("apikey").value = result.apiKey || ""; // Set to empty string if undefined
+        // }).catch((error) => {
+        //     console.error("Error retrieving apiKey:", error);
+        // });
+
+
+
+    } else {
+        console.log("validKey is false")
+        const loginButton = document.getElementById("loginButton");
+        // loginButton.addEventListener("click", RQ(apiKey, urlLogin));
+        loginButton.addEventListener("click", () => {
+            apiKey = document.getElementById("apikey").value,
+            RQ(apiKey, urlLogin); // This will now only be called on button click
+        });
+    }
+});
