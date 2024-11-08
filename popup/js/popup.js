@@ -24,6 +24,18 @@ async function getValue(name, callback) {
 
 
 function updatePopupWithLatestDownloads() {
+
+
+    // TODO:
+    // Get Download List ()
+    // Get torrent List
+    // Compare the two to find if any torrent needs to be unrestricted
+    // If yes call https://api.real-debrid.com/rest/1.0/unrestrict/link&link="https://real-debrid.com/d/HL23LLQQZWHL65DF"
+
+
+
+
+
     let download_map = RQ(apiKey, urlGetDownloads, "GET_DOWNLOADS")
     console.log("download_map: " + download_map)
 }
