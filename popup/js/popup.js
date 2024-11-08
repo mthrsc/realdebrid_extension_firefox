@@ -1,6 +1,8 @@
 let validKey = false
 let apiKey = ""
-let urlLogin = "https://api.real-debrid.com/rest/1.0/user"
+const urlLogin = "https://api.real-debrid.com/rest/1.0/user"
+const urlGetDownloads = "https://api.real-debrid.com/rest/1.0/downloads"
+
 
 function setValue(name, value) {
     return browser.storage.local.set({ [name]: value });
@@ -10,35 +12,39 @@ async function getValue(name, callback) {
     console.log("[name]: " + [name])
     return await browser.storage.local.get(name).then((result) => {
         ret = result[name] !== undefined ? result[name] : "";
-        console.log("ret for "+ name + " : " + ret)
+        // console.log("ret for "+ name + " : " + ret)
         // return ret
         callback(ret)
     }).catch((error) => {
-        console.error("Error retrieving value for", name, ":", error);
+        // console.error("Error retrieving value for", name, ":", error);
         // return ""; // Return an empty string in case of error
         callback("")
     });
 }
 
 
-function updatePopupWithLatestTorrent(apiKey) {
-
+function updatePopupWithLatestDownloads() {
+    let download_map = RQ(apiKey, urlGetDownloads, "GET_DOWNLOADS")
+    console.log("download_map: " + download_map)
 }
 
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 
-    validKeyPromise = getValue("validKey", (validKeyCallback) => {
+    validKeyPromise = await getValue("validKey", (validKeyCallback) => {
         validKey = validKeyCallback
-        console.log("validKey :", validKey)
+        // console.log("validKey :", validKey)
     })
 
-    apiKeyPromise = getValue("apiKey",(apiKeyCallback) => {
+    apiKeyPromise = await getValue("apiKey",(apiKeyCallback) => {
         apiKey = apiKeyCallback
-        console.log("API Key:", apiKey);});
+        // console.log("API Key:", apiKey);
+    });
 
-    if (validKey) {
+    
+    if (validKey && apiKey) {
         console.log("validKey is true")
+        updatePopupWithLatestTorrent()
 
         //Implement and call updatePopupWithLatestTorrent()
         // RQ
@@ -59,7 +65,8 @@ document.addEventListener("DOMContentLoaded", () => {
         // loginButton.addEventListener("click", RQ(apiKey, urlLogin));
         loginButton.addEventListener("click", () => {
             apiKey = document.getElementById("apikey").value,
-                RQ(apiKey, urlLogin); // This will now only be called on button click
+            console.log("apikey textbox: " + apiKey),
+            RQ(apiKey, urlLogin, "LOGIN"); // This will now only be called on button click
         });
     }
 });
