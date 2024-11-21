@@ -23,7 +23,7 @@ async function getValue(name, callback) {
 }
 
 
-function updatePopupWithLatestDownloads() {
+async function updatePopup() {
 
 
     // TODO:
@@ -36,9 +36,24 @@ function updatePopupWithLatestDownloads() {
 
 
 
-    let download_map = RQ(apiKey, urlGetDownloads, "GET_DOWNLOADS")
-    console.log("download_map: " + download_map)
+    let download_map = await RQ(apiKey, "GET_DOWNLOADS")
+    console.log("download_map: ")
+    for (const entry of download_map.entries()) {
+        console.log(entry[0]);
+    }
+
+    let torrent_array = await RQ(apiKey, "GET_TORRENTS")
+    console.log("torrent_array: ")
+    for (const entry of torrent_array.entries()) {
+        console.log(entry);
+    }
+
+    // console.log("torrent_array: " + torrent_array)
 }
+
+function getTorrents(){}
+
+function getDownloads(){}
 
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -56,9 +71,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     if (validKey && apiKey) {
         console.log("validKey is true")
-        updatePopupWithLatestTorrent()
+        await updatePopup()
 
-        //Implement and call updatePopupWithLatestTorrent()
+        //Implement and call updatePopupWithLatestDownloads()
         // RQ
 
 
@@ -78,7 +93,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         loginButton.addEventListener("click", () => {
             apiKey = document.getElementById("apikey").value,
             console.log("apikey textbox: " + apiKey),
-            RQ(apiKey, urlLogin, "LOGIN"); // This will now only be called on button click
+            RQ(apiKey, "LOGIN"); // This will now only be called on button click
         });
     }
 });
