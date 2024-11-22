@@ -39,26 +39,18 @@ async function RQ(apiKey, rqType) {
     }  
 
     if (rqType === "GET_DOWNLOADS") {
-        return format_downloads_list(data)
+        return return_objects_array(data)
     }
     if (rqType === "GET_TORRENTS") {
-        return format_torrents_list(data)
+        return return_objects_array(data)
     }
 }
 
-function format_downloads_list(data) {
-    const map_dl = new Map(); 
-    data.forEach(o => {
-        map_dl.set(o.filename, o.download);
-        // console.log(o.filename + o.download)
-    });
-    return map_dl;
-}
 
-function format_torrents_list(data) {
-    const tor_arr = []; 
+function return_objects_array(data) {
+    const arr = []; 
     data.forEach(o => {
-        tor_arr.push(o)    
+        arr.push(o)    
     });
-    return tor_arr;
+    return arr;
 }

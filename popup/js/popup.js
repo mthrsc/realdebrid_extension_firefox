@@ -23,7 +23,7 @@ async function getValue(name, callback) {
 }
 
 
-async function updatePopup() {
+async function generateDownloadList() {
 
 
     // TODO:
@@ -36,25 +36,87 @@ async function updatePopup() {
 
 
 
-    let download_map = await RQ(apiKey, "GET_DOWNLOADS")
-    console.log("download_map: ")
-    for (const entry of download_map.entries()) {
-        console.log(entry[0]);
-    }
+    let download_arr = await RQ(apiKey, "GET_DOWNLOADS")
 
     let torrent_array = await RQ(apiKey, "GET_TORRENTS")
-    console.log("torrent_array: ")
-    for (const entry of torrent_array.entries()) {
-        console.log(entry);
-    }
 
     // console.log("torrent_array: " + torrent_array)
+
+    const container = document.getElementById("download_list");
+    container.innerHTML = "";
+
+    for (const entry of torrent_array.entries()) {
+
+        let fileName = entry[1].filename;
+        let restrictedLink = entry[1].links[0];
+
+        // console.log(fileName);
+        // console.log(restrictedLink);
+
+
+        let listItem = document.createElement("div");
+        listItem.className = "list-item";
+        listItem.textContent = fileName;
+
+        container.appendChild(listItem);
+
+        // Is file unrestricted ?
+        let isFileUnrestrictedBool = isFileUnrestricted(fileName, download_arr)
+
+        if (isFileUnrestrictedBool[0]){
+            let downloadButton = document.createElement("button");
+            downloadButton.textContent = "Download";
+            
+            downloadButton.addEventListener("click", () => {downloadFileFunc(isFileUnrestrictedBool[1])});
+            
+            container.appendChild(downloadButton);
+        } else {
+            let unrestrictButton = document.createElement("button");
+            unrestrictButton.textContent = "Unrestrict";
+            unrestrictButton.addEventListener("click", () => {
+                RQ(apiKey, "UNRESTRICT", entry[1].links[0]);
+            });
+            container.appendChild(unrestrictButton);
+        }
+    }
 }
 
-function getTorrents(){}
+function isFileUnrestricted(fileName, download_arr){
+    for (const entry of download_arr.entries()) {
+        let downloadFileName = entry[1].filename;
+        if (fileName == downloadFileName) {
+            // console.log("Download link found:");
+            let downloadLink = entry[1].download
+            // console.log(downloadLink);
+            // console.log(" ");
 
-function getDownloads(){}
+            return [true, downloadLink]
+        }
+    }
 
+    return [false, null]
+}
+
+function downloadFileFunc(link){
+    // console.log("link: " + link)
+    window.open(link, '_blank'); // Open the link in a new tab
+}
+
+function updatePopup(screen){
+    document.querySelectorAll('div[class^="container_"]').forEach(div => {
+        div.style.display = 'none';
+    });
+
+    if(screen==="LOADING"){
+        document.querySelector('div.container_loading').style.display = 'block';
+    }
+    if(screen==="TORRENTS"){
+        document.querySelector('div.container_torrent_list').style.display = 'block';
+    }
+    if(screen==="LOGIN"){
+        document.querySelector('div.container_login').style.display = 'block';
+    }
+}
 
 document.addEventListener("DOMContentLoaded", async () => {
 
@@ -70,8 +132,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     
     if (validKey && apiKey) {
-        console.log("validKey is true")
-        await updatePopup()
+        // SHOW LOADING
+        updatePopup("LOADING")
+        // console.log("validKey is true")
+        await generateDownloadList()
+
+        //SHOW TORRENT
+        updatePopup("TORRENTS")
 
         //Implement and call updatePopupWithLatestDownloads()
         // RQ
@@ -86,13 +153,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 
-    } else {
-        console.log("validKey is false")
+    } 
+    if (!validKey || !apiKey) {
+        //SHOW LOGIN SCREEN
+        updatePopup("LOGIN")
+
+        // console.log("validKey is false")
         const loginButton = document.getElementById("loginButton");
         // loginButton.addEventListener("click", RQ(apiKey, urlLogin));
         loginButton.addEventListener("click", () => {
             apiKey = document.getElementById("apikey").value,
-            console.log("apikey textbox: " + apiKey),
+            // console.log("apikey textbox: " + apiKey),
             RQ(apiKey, "LOGIN"); // This will now only be called on button click
         });
     }
