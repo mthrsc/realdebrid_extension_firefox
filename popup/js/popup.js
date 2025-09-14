@@ -207,12 +207,6 @@ async function RQ(apiKey, rqType, rqBodyParam1){
         url = "https://api.real-debrid.com/rest/1.0/downloads"
     } else if(rqType === "GET_TORRENTS"){
         url = "https://api.real-debrid.com/rest/1.0/torrents"
-    } else if(rqType === "ADD_MAGNET"){
-        url = "https://api.real-debrid.com/rest/1.0/torrents/addMagnet"
-        rqMethod = "POST"
-        if (rqBodyParam1) {
-            body = "magnet=" + encodeURIComponent(rqBodyParam1);
-        }
     }
 
     console.log("RQ apiKey: " + apiKey)
@@ -237,7 +231,13 @@ async function RQ(apiKey, rqType, rqBodyParam1){
     //     setValue("validKey", false)
     //     return null;
     // }
-    const data = await response.json();
+    let data = null;
+    try {   
+        data = await response.json();
+    } catch (error) {
+        // console.error("Error parsing JSON:", error);
+        return null;
+    }
     // console.log("raw data: " + data);
 
     if (rqType === "LOGIN") {
@@ -252,10 +252,6 @@ async function RQ(apiKey, rqType, rqBodyParam1){
     if (rqType === "GET_TORRENTS") {
         return return_objects_array(data)
     }
-    if (rqType === "ADD_MAGNET") {
-        // return return_objects_array(data)
-    }
-
 }
 
 

@@ -51,7 +51,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
             console.log("Unrestrict link:", info.linkUrl);
             console.log("Magnet link detected:", info.linkUrl);
             // You can call your API logic here
-            RQ(apiKey, "ADD_MAGNET", info.linkUrl);
+            RQ(apiKey, "ADD_MAGNET", info.linkUrl, "");
         }
     }
 });
@@ -82,55 +82,49 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
 
 
 
-async function RQ(apiKey, rqType, rqBodyParam1){
+async function RQ(apiKey, rqType, rqBodyParam1, file_id){
     let url = "";
     let rqMethod = "GET";
     let body = null;
-
-    if(rqType === "LOGIN"){
-        url = "https://api.real-debrid.com/rest/1.0/user"
-    } else if(rqType === "GET_DOWNLOADS"){
-        url = "https://api.real-debrid.com/rest/1.0/downloads"
-    } else if(rqType === "GET_TORRENTS"){
-        url = "https://api.real-debrid.com/rest/1.0/torrents"
-    } else if(rqType === "ADD_MAGNET"){
+    
+    if(rqType === "ADD_MAGNET"){
         url = "https://api.real-debrid.com/rest/1.0/torrents/addMagnet"
         rqMethod = "POST"
         if (rqBodyParam1) {
             body = "magnet=" + encodeURIComponent(rqBodyParam1);
         }
     }else if(rqType === "SELECT_ALL_FILES"){
-        url = "https://api.real-debrid.com/rest/1.0/torrents"
+        url = "https://api.real-debrid.com/rest/1.0/torrents/selectFiles" + "/" + file_id
         rqMethod = "POST"
         if (rqBodyParam1) {
-            body = "magnet=" + encodeURIComponent(rqBodyParam1);
+            body = "files=" + encodeURIComponent(rqBodyParam1);
+        }
+    }else if(rqType === "UNRESTRICT_FILE"){
+        url = "https://api.real-debrid.com/rest/1.0/unrestrict/link"
+        rqMethod = "POST"
+        if (rqBodyParam1) {
+            body = "link=" + encodeURIComponent(rqBodyParam1);
         }
     }
 
-    console.log("RQ apiKey: " + apiKey)
-    console.log("RQ url: " + url)
-    console.log("rqType: " + rqType)
     // Bearer token
     const response = await fetch(url, {
         method: rqMethod,
         mode: 'cors',
         headers: {
             'Authorization': `Bearer ${apiKey}`,
-            // 'Content-Type': 'application/json'
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: body
     })
-    // Check if the response is ok (status code in the range 200-299)
-    console.log(response); // Handle the data from the response
-
-    // if (!response.ok) {
-    //     setValue("apiKey", "")
-    //     setValue("validKey", false)
-    //     return null;
-    // }
-    const data = await response.json();
-    // console.log("raw data: " + data);
+    console.log("Here")
+    let data = null;
+    try {   
+        data = await response.json();
+    } catch (error) {
+        console.error("Error parsing JSON:", error);
+    }
+    console.log("raw data: " + JSON.stringify(data));
 
     if (rqType === "LOGIN") {
         setValue("apiKey", apiKey)
@@ -145,7 +139,15 @@ async function RQ(apiKey, rqType, rqBodyParam1){
         return return_objects_array(data)
     }
     if (rqType === "ADD_MAGNET" && response.ok) {
-        RQ( apiKey, "GET_TORRENTS" );
+        file_id = data.id
+        RQ( apiKey, "SELECT_ALL_FILES", "all", file_id)
+    }
+    if (rqType === "SELECT_ALL_FILES" && response.ok) {
+        rqBodyParam1 = data.download
+        RQ( apiKey, "UNRESTRICT_FILE", rqBodyParam1, "")
+    }
+    if (rqType === "UNRESTRICT_FILE" && response.ok) {
+        console.log("File unrestricted successfully:", data);
     }
 
 }
