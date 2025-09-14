@@ -86,7 +86,6 @@ async function RQ(apiKey, rqType, rqBodyParam1){
     let url = "";
     let rqMethod = "GET";
     let body = null;
-    let rqBodyParam1_name = "";
 
     if(rqType === "LOGIN"){
         url = "https://api.real-debrid.com/rest/1.0/user"
@@ -97,9 +96,14 @@ async function RQ(apiKey, rqType, rqBodyParam1){
     } else if(rqType === "ADD_MAGNET"){
         url = "https://api.real-debrid.com/rest/1.0/torrents/addMagnet"
         rqMethod = "POST"
-        rqBodyParam1_name = "magnet"
         if (rqBodyParam1) {
-            body = JSON.stringify({ magnet: rqBodyParam1 });
+            body = "magnet=" + encodeURIComponent(rqBodyParam1);
+        }
+    }else if(rqType === "SELECT_ALL_FILES"){
+        url = "https://api.real-debrid.com/rest/1.0/torrents"
+        rqMethod = "POST"
+        if (rqBodyParam1) {
+            body = "magnet=" + encodeURIComponent(rqBodyParam1);
         }
     }
 
@@ -112,17 +116,19 @@ async function RQ(apiKey, rqType, rqBodyParam1){
         mode: 'cors',
         headers: {
             'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json'
-        }
+            // 'Content-Type': 'application/json'
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: body
     })
     // Check if the response is ok (status code in the range 200-299)
     console.log(response); // Handle the data from the response
 
-    if (!response.ok) {
-        setValue("apiKey", "")
-        setValue("validKey", false)
-        return null;
-    }
+    // if (!response.ok) {
+    //     setValue("apiKey", "")
+    //     setValue("validKey", false)
+    //     return null;
+    // }
     const data = await response.json();
     // console.log("raw data: " + data);
 
@@ -138,8 +144,8 @@ async function RQ(apiKey, rqType, rqBodyParam1){
     if (rqType === "GET_TORRENTS") {
         return return_objects_array(data)
     }
-    if (rqType === "ADD_MAGNET") {
-        return return_objects_array(data)
+    if (rqType === "ADD_MAGNET" && response.ok) {
+        RQ( apiKey, "GET_TORRENTS" );
     }
 
 }
