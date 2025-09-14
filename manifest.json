@@ -23,12 +23,13 @@
     },
     "background": {
         "scripts": ["background.js"],
-        "persistent": false
+        "persistent": false,
+        "type": "module"
     },
 
     "permissions": [
         "storage",
-        "https://api.real-debrid.com/*"
+        "https://api.real-debrid.com/*",
+        "contextMenus"
     ]
 }
-  

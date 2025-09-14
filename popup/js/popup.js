@@ -4,7 +4,7 @@ const urlLogin = "https://api.real-debrid.com/rest/1.0/user"
 const urlGetDownloads = "https://api.real-debrid.com/rest/1.0/downloads"
 
 
-function setValue(name, value) {
+export function setValue(name, value) {
     return browser.storage.local.set({ [name]: value });
 }
 
